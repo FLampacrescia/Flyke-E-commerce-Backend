@@ -3,7 +3,7 @@ const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const salt = 10;
 const jwt = require("jsonwebtoken");
-const SECRET = "Alf@_b3T4!"
+const SECRET = process.env.SECRET_JWT;
 
 // Obtener usuarios
 async function getUsers(req, res) {

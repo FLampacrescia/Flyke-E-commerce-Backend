@@ -1,12 +1,13 @@
+require('dotenv').config();
+
 const app = require("./app.js");
 
 const mongoose = require("mongoose");
 
 const PORT = 3000;
+const URI = process.env.MONGO_URI
 
-const mongo_uri = "mongodb+srv://user1:P!8K.wwFZL7UyXw@eit-flyke-ecommerce.twsqylh.mongodb.net/ecommerce?retryWrites=true&w=majority"
-
-mongoose.connect(mongo_uri).then(() => {
+mongoose.connect(URI).then(() => {
                       console.log("Conectado a la DB");
                       
                       app.listen(PORT, () => {
