@@ -9,9 +9,11 @@ const SECRET = "Alf@_b3T4!"
 async function getUsers(req, res) {
   try {
 
-    // const searchName = new RegExp(req.query.name, "i");
+    const searchName = new RegExp(req.query.name, "i");
     
-    const users = await User.find({});
+    const users = await User.find({
+      name: searchName
+    });
     return res.status(200).send(users)
 
   } catch (error) {
