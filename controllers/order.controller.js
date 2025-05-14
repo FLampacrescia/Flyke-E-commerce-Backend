@@ -43,7 +43,7 @@ async function getOrders(req, res) {
         const orders = await Order.find(user)
                                     .sort({ createdAt: -1 })
                                     .populate("user", "name email")
-                                    .populate("products.product", "name price image")
+                                    .populate("products.product", "title price image")
 
         return res.status(200).send({
             message: "Orders retrieved successfully",
