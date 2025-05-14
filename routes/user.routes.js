@@ -9,10 +9,10 @@ router.get("/users", userController.getUsers);
 router.get("/users/:id", userController.getUserById);
 
 // Ruta para crear un nuevo usuario
-router.post("/users", userController.createUser);
+router.post("/users", [ isAuth, isAdmin ], userController.createUser);
 
 // Ruta para eliminar un usuario por ID
-router.delete("/users/:id", userController.deleteUserById);
+router.delete("/users/:id", [ isAuth, isAdmin ], userController.deleteUserById);
 
 // Ruta para actualizar/editar un usuario por ID
 router.put("/users/:id", [isAuth, isAdmin], userController.updateUserById);

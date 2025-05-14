@@ -9,12 +9,12 @@ router.get('/products', productController.getProducts);
 router.get('/products/:id', productController.getProductById);
 
 // Ruta para crear un nuevo producto
-router.post('/products', [upload], productController.createProduct);
+router.post('/products', [ isAuth, isAdmin ], [upload], productController.createProduct);
 
 // Ruta para eliminar un producto por ID
-router.delete('/products/:id', productController.deleteProductById);
+router.delete('/products/:id', [ isAuth, isAdmin ], productController.deleteProductById);
 
 // Ruta para actualizar un producto por ID
-router.put('/products/:id', [upload], productController.updateProductById);
+router.put('/products/:id', [ isAuth, isAdmin ], [upload], productController.updateProductById);
 
 module.exports = router
