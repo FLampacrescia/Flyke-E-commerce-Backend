@@ -14,7 +14,7 @@ function isAuth(req, res, next) {
             return res.status(401).send("Token Inválido.");
         }
 
-        console.log(decoded);
+        req.user = decoded;
 
         next()
     })

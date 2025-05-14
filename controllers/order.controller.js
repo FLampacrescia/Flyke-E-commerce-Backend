@@ -37,8 +37,8 @@ async function checkOrderPrices(products) {
 async function getOrders(req, res) {
     try {
 
-        // const id = req.user._id;
-        // const user = req.user.role === "admin" ? {} : {user: id};
+        const id = req.user._id;
+        const user = req.user.role === "admin" ? {} : {user: id};
 
         const orders = await Order.find(user)
                                     .sort({ createdAt: -1 })
