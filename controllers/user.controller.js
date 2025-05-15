@@ -51,20 +51,23 @@ async function getUserById(req, res) {
 // Creación de usuario
 async function createUser(req, res) {
   try {
-    const authHeader = req.headers["authorization"] || req.headers["access_token"];
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const decoded = jwt.verify(token, process.env.SECRET_JWT);
-      if (decoded.role !== "admin") {
-        return res.status(403).send({ message: "No autorizado para crear usuarios." });
+    const token = req.headers["access_token"];
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, SECRET);
+        if (decoded.role !== "admin") {
+          return res.status(403).send({ message: "No autorizado para crear usuarios." });
+        }
+
+      } catch (error) {
+        return res.status(401).send({ message: "Token inválido." });
       }
     }
 
-    // Continuamos creando el usuario
     const user = new User(req.body);
     user.password = await bcrypt.hash(user.password, salt);
 
-    // Si no se especifica rol (registro público), forzamos "user"
     if (!user.role) user.role = "user";
 
     const newUser = await user.save();
