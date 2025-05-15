@@ -9,7 +9,7 @@ router.get("/users", userController.getUsers);
 router.get("/users/:id", userController.getUserById);
 
 // Ruta para crear un nuevo usuario desde el panel de administración
-router.post("/users", [ isAuth, isAdmin ], userController.createUser);
+router.post("/users", userController.createUser);
 
 // Ruta para eliminar un usuario por ID
 router.delete("/users/:id", [ isAuth, isAdmin ], userController.deleteUserById);
