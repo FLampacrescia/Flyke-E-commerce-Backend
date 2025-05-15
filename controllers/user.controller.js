@@ -1,4 +1,3 @@
-// Importamos nuestro modelo de usuario
 const User = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const salt = 10;
@@ -52,24 +51,30 @@ async function getUserById(req, res) {
 // Creación de usuario
 async function createUser(req, res) {
   try {
-    const user = new User(req.body) // req.body.password = "contraseñaejemplo1234"
+    const authHeader = req.headers["authorization"] || req.headers["access_token"];
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const decoded = jwt.verify(token, process.env.SECRET_JWT);
+      if (decoded.role !== "admin") {
+        return res.status(403).send({ message: "No autorizado para crear usuarios." });
+      }
+    }
 
-    // user.role = "user"
-
-    // Antes de guardar el usuario, encriptamos la contraseña
+    // Continuamos creando el usuario
+    const user = new User(req.body);
     user.password = await bcrypt.hash(user.password, salt);
 
-    // Guardamos el usuario
-    const newUser = await user.save()
+    // Si no se especifica rol (registro público), forzamos "user"
+    if (!user.role) user.role = "user";
 
-    // Antes de devolver el usuario, eliminamos la contraseña.
+    const newUser = await user.save();
     newUser.password = undefined;
 
     return res.status(201).send({
       message: "Usuario creado correctamente.",
-      user: newUser
-    })
-  } catch (error){
+      user: newUser,
+    });
+  } catch (error) {
     console.log(error);
     res.status(500).send("Error al crear el usuario.");
   }
