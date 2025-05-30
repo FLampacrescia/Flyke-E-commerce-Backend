@@ -170,11 +170,17 @@ async function loginUser(req, res) {
       // b - Vamos a establecer o generar un toekn para que el usuario pueda corroborar en futuras peticiones que es el mismo usuario que se logueó.
 
       // Los tokens se utilizan para autenticar a un usuario y verificar su identidad. En este caso vamos a utilizar JWT (JSON Web Token).
-      const token = jwt.sign(
-        user.toJSON(), 
-        SECRET, 
-        { expiresIn: "1h" } // 1 hora de validez del token.
-    )
+      const tokenPayload = {
+            id: user._id.toString(),  // importante usar .toString() para evitar problemas
+            role: user.role,
+            email: user.email
+        };
+
+        const token = jwt.sign(
+            tokenPayload,
+            SECRET,
+            { expiresIn: "1h" }
+        );
 
       // 4- Retornamos el token y el usuario sin la contraseña.
       return res.status(200).send({

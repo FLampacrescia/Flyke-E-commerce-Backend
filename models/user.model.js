@@ -1,6 +1,37 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const addressSchema = new Schema({
+    street: {
+        type: String,
+        required: true,
+        minlength: 3,
+        maxlength: 100
+    },
+    neighborhood: {
+        type: String,
+        required: true,
+        minlength: 3,
+        
+    },
+    province: {
+        type: String,
+        required: true,
+        minlength: 4,
+        maxlength: 50
+    },
+    postalCode: {
+        type: String,
+        required: true,
+        minlength: 4,
+        maxlength: 10
+    },
+    isDefault: {
+        type: Boolean,
+        default: false
+    }
+}, { _id: true });
+
 const userSchema = new Schema({
     name: {
         type: String,
@@ -14,6 +45,13 @@ const userSchema = new Schema({
         required: true,
         minlength: 3,
         maxlength: 50,
+        trim: true
+    },
+    dni: {
+        type: String,
+        required: true,
+        minlength: 7,
+        maxlength: 9,
         trim: true
     },
     birthDate: {
@@ -33,12 +71,6 @@ const userSchema = new Schema({
             },
             message: 'Debes tener al menos 13 años y no puedes ingresar una fecha futura.'
         }
-    },
-    province: {
-        type: String,
-        required: true,
-        minlength: 4,
-        maxlength: 50,
     },
     email: {
         type: String,
@@ -68,6 +100,7 @@ const userSchema = new Schema({
         enum: ["admin", "user", "editor"],
         default: "user"
     },
+    addresses: [addressSchema], // varias direcciones
     createdAt: {
         type: Date,
         default: Date.now,
