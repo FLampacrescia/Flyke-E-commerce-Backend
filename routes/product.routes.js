@@ -18,4 +18,7 @@ router.delete('/products/:id', [ isAuth, isAdmin ], productController.deleteProd
 // Ruta para actualizar un producto por ID
 router.put('/products/:id', [ isAuth, isAdmin ], [upload], productController.updateProductById);
 
+// Ruta para actualizar la descripción de un producto por ID
+router.patch('/products/:id', [ isAuth, isAdmin ], updateProductById);
+
 module.exports = router
