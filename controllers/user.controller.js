@@ -122,35 +122,42 @@ async function deleteUserById(req, res) {
 }
 
 // Actualizar usuario por ID
-async function updateUserById(req, res) {
+const updateUserById = async (req, res) => {
   try {
     const id = req.params.id;
-    const data = req.body;
-    
-    data.password = undefined;
-    data.updatedAt = Date.now();
+    const { name, lastName, email, dni } = req.body;
 
-    const userUpdated = await User.findByIdAndUpdate(id, data, {new: true})
-    console.log(userUpdated);
-    
-    if(!userUpdated) {
-      return res.status(404).send({
-        message: "El usuario no se puede actualizar."
-      })
+    const updateFields = {
+      ...(name && { name }),
+      ...(lastName && { lastName }),
+      ...(email && { email }),
+      ...(dni && { dni }),
+      updatedAt: Date.now(),
+    };
+
+    const userUpdated = await User.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!userUpdated) {
+      return res.status(404).send({ message: "El usuario no se puede actualizar." });
     }
+
+    console.log("Usuario actualizado:", userUpdated);
 
     return res.status(200).send({
       message: "Usuario actualizado correctamente.",
-      user: userUpdated
-    })
-    
+      user: userUpdated,
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error al actualizar usuario:", error);
     return res.status(500).send({
-      message: "Error al intentar actualizar el usuario."
-    })
+      message: "Error al intentar actualizar el usuario.",
+    });
   }
-}
+};
 
 // Login del usuario
 async function loginUser(req, res) {
