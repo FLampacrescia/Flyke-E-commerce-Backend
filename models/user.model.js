@@ -20,7 +20,7 @@ const addressSchema = new Schema({
         minlength: 4,
         maxlength: 50
     },
-    postalCode: {
+    zipCode: {
         type: String,
         required: true,
         minlength: 4,

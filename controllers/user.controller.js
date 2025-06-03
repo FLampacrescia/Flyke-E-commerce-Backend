@@ -52,31 +52,50 @@ async function getUserById(req, res) {
 async function createUser(req, res) {
   try {
     const token = req.headers["access_token"];
+    let finalRole = "user"; // Valor por defecto
 
+    // Si viene un token, validarlo y verificar si es admin
     if (token) {
       try {
         const decoded = jwt.verify(token, SECRET);
-        if (decoded.role !== "admin") {
+        if (decoded.role === "admin") {
+          finalRole = req.body.role || "user"; // Admin puede asignar rol
+        } else {
           return res.status(403).send({ message: "No autorizado para crear usuarios." });
         }
-
       } catch (error) {
         return res.status(401).send({ message: "Token inválido." });
       }
     }
+    // Si no hay token, finalRole queda como "user"
 
-    const user = new User(req.body);
-    user.password = await bcrypt.hash(user.password, salt);
+    // Validaciones de email y DNI duplicado
+    const existingEmail = await User.findOne({ email: req.body.email });
+    if (existingEmail) {
+      return res.status(400).send({ message: "El correo electrónico ya está registrado." });
+    }
 
-    if (!user.role) user.role = "user";
+    const existingDni = await User.findOne({ dni: req.body.dni });
+    if (existingDni) {
+      return res.status(400).send({ message: "El DNI ya está registrado." });
+    }
+
+    // Crear usuario y hashear contraseña
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const user = new User({
+      ...req.body,
+      role: finalRole,
+      password: hashedPassword,
+    });
 
     const newUser = await user.save();
-    newUser.password = undefined;
+    newUser.password = undefined; // no exponer contraseña
 
     return res.status(201).send({
       message: "Usuario creado correctamente.",
       user: newUser,
     });
+
   } catch (error) {
     console.log(error);
     res.status(500).send("Error al crear el usuario.");

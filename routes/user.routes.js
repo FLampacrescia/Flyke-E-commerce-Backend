@@ -8,6 +8,9 @@ router.get("/users", userController.getUsers);
 // Ruta para obtener un usuario por ID
 router.get("/users/:id", userController.getUserById);
 
+// Ruta pública para registrarse como usuario
+router.post("/register", userController.createUser);
+
 // Ruta para crear un nuevo usuario desde el panel de administración
 router.post("/users", [ isAdmin ], userController.createUser);
 
