@@ -3,10 +3,10 @@ const Schema = mongoose.Schema;
 
 const storeSchema = new Schema({
     name: String,
-    lat: Number,
-    lon: Number,
     address: String,
     neighborhood: String,
+    province: String,
+    timetable: String
 });
 
 module.exports = mongoose.model("Store", storeSchema);
