@@ -17,30 +17,23 @@ async function getStores(req, res) {
 // Agregar una nueva sucursal
 async function addStore(req, res) {
     try {
-        const { name, lat, lon } = req.body;
+        const { name, address, neighborhood, province, timetable } = req.body;
 
-        if (!name || lat === undefined || lon === undefined) {
-            return res.status(400).send({ message: "Missing required fields: name, lat, lon" });
+        if (!name || !address || !neighborhood || !province || !timetable) {
+            return res.status(400).send({ message: "Missing required store fields" });
         }
 
-        // Verificar duplicados
-        const existingStore = await Store.findOne({
-            $or: [
-                { name: name.trim() },
-                { lat: lat, lon: lon }
-            ]
-        });
-
+        const existingStore = await Store.findOne({ name: name.trim(), address: address.trim() });
         if (existingStore) {
-            return res.status(409).send({ message: "Store with same name or location already exists" });
+            return res.status(409).send({ message: "Store with same name and address already exists" });
         }
 
-        const newStore = new Store({ name: name.trim(), lat, lon });
+        const newStore = new Store({ name: name.trim(), address, neighborhood, province, timetable });
         const savedStore = await newStore.save();
 
         return res.status(201).send({
             message: "Store added successfully",
-            store: savedStore
+            store: savedStore,
         });
     } catch (error) {
         console.error(error);
@@ -74,34 +67,37 @@ async function deleteStore(req, res) {
 }
 
 // Actualizar una sucursal existente
-async function updateStore(req, res) {
+async function updateStoreById(req, res) {
     try {
         const { id } = req.params;
-        const { name, lat, lon } = req.body;
+        const { name, address, neighborhood, province, timetable } = req.body;
 
-        if (!name || lat === undefined || lon === undefined) {
-            return res.status(400).send({ message: "Missing required fields: name, lat, lon" });
+        // Validar campos obligatorios
+        if (!name || !address || !neighborhood || !province || !timetable) {
+            return res.status(400).send({ message: "Missing required fields" });
         }
 
+        // Verificar duplicados (exceptuando la tienda actual)
         const existingStore = await Store.findOne({
-            $and: [
-                { _id: { $ne: id } }, // Excluir la tienda actual
-                {
-                    $or: [
-                        { name: name.trim() },
-                        { lat: lat, lon: lon }
-                    ]
-                }
-            ]
+            _id: { $ne: id },
+            name: name.trim(),
+            address: address.trim()
         });
 
         if (existingStore) {
-            return res.status(409).send({ message: "Another store with same name or location already exists" });
+            return res.status(409).send({ message: "Another store with same name and address already exists" });
         }
 
+        // Actualizar tienda
         const updatedStore = await Store.findByIdAndUpdate(
             id,
-            { name: name.trim(), lat, lon },
+            {
+                name: name.trim(),
+                address: address.trim(),
+                neighborhood,
+                province,
+                timetable
+            },
             { new: true }
         );
 
@@ -124,5 +120,5 @@ module.exports = {
     getStores,
     addStore,
     deleteStore,
-    updateStore,
+    updateStoreById,
 };
