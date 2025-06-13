@@ -42,9 +42,9 @@ async function addStore(req, res) {
 }
 
 // Eliminar una sucursal por ID
-async function deleteStore(req, res) {
+async function deleteStoreById(req, res) {
     try {
-        const { id } = req.body;
+        const { id } = req.params; // ← corregido
 
         if (!id) {
             return res.status(400).send({ message: "Missing store ID" });
@@ -119,6 +119,6 @@ async function updateStoreById(req, res) {
 module.exports = {
     getStores,
     addStore,
-    deleteStore,
+    deleteStoreById,
     updateStoreById,
 };
