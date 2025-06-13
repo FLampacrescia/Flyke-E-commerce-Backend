@@ -20,6 +20,9 @@ router.delete("/users/:id", [isAuth, canEditUser], userController.deleteUserById
 // Ruta para actualizar/editar un usuario por ID (admin o dueño)
 router.put("/users/:id", [isAuth, canEditUser], userController.updateUserById);
 
+// Ruta para establecer una dirección como principal o "default"
+router.put("/users/:userId/addresses/:addressId/set-default", [ isAuth ], userController.setDefaultAddress);
+
 // Ruta para realizar login de un usuario
 router.post("/login", userController.loginUser)
 

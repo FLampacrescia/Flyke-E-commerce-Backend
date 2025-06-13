@@ -159,6 +159,27 @@ const updateUserById = async (req, res) => {
   }
 };
 
+// Establecer una dirección como principal o "default"
+async function setDefaultAddress(req, res) {
+  try {
+    const { userId, addressId } = req.params;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    user.addresses.forEach(addr => {
+      addr.isDefault = addr._id.toString() === addressId;
+    });
+
+    await user.save();
+
+    res.status(200).json({ message: "Dirección principal actualizada correctamente", addresses: user.addresses });
+  } catch (error) {
+    console.error("Error actualizando dirección principal:", error);
+    res.status(500).json({ message: "Error al actualizar la dirección principal" });
+  }
+}
+
 // Login del usuario
 async function loginUser(req, res) {
   try {
@@ -230,5 +251,6 @@ module.exports = {
   createUser,
   deleteUserById,
   updateUserById,
+  setDefaultAddress,
   loginUser
 }
