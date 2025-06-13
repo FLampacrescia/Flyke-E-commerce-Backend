@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const orderSchema = new Schema({
+    orderCode: {
+        type: String,
+        unique: true,
+        required: true,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -27,6 +32,22 @@ const orderSchema = new Schema({
     total: {
         type: Number,
         required: true
+    },
+    shipping: {
+        type: String,
+        enum: ['delivery', 'pickup'],
+        required: true
+    },
+    store: {
+        type: String,
+        default: null
+    },
+    shippingAddress: {
+        name: String,
+        street: String,
+        city: String,
+        province: String,
+        zipCode: String
     },
     status: {
         type: String,
