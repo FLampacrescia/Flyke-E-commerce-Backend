@@ -5,6 +5,7 @@ const storeSchema = new Schema({
     name: String,
     address: String,
     neighborhood: String,
+    mapsLink: String,
     province: String,
     timetable: String
 });
