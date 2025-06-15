@@ -17,9 +17,9 @@ async function getStores(req, res) {
 // Agregar una nueva sucursal
 async function addStore(req, res) {
     try {
-        const { name, address, neighborhood, province, timetable } = req.body;
+        const { name, address, neighborhood, province, timetable, mapsLink } = req.body;
 
-        if (!name || !address || !neighborhood || !province || !timetable) {
+        if (!name || !address || !neighborhood || !province || !timetable || !mapsLink) {
             return res.status(400).send({ message: "Missing required store fields" });
         }
 
@@ -28,7 +28,14 @@ async function addStore(req, res) {
             return res.status(409).send({ message: "Store with same name and address already exists" });
         }
 
-        const newStore = new Store({ name: name.trim(), address, neighborhood, province, timetable });
+        const newStore = new Store({
+            name: name.trim(),
+            address,
+            neighborhood,
+            province,
+            timetable,
+            mapsLink
+        });
         const savedStore = await newStore.save();
 
         return res.status(201).send({
@@ -44,7 +51,7 @@ async function addStore(req, res) {
 // Eliminar una sucursal por ID
 async function deleteStoreById(req, res) {
     try {
-        const { id } = req.params; // ← corregido
+        const { id } = req.params;
 
         if (!id) {
             return res.status(400).send({ message: "Missing store ID" });
@@ -70,10 +77,10 @@ async function deleteStoreById(req, res) {
 async function updateStoreById(req, res) {
     try {
         const { id } = req.params;
-        const { name, address, neighborhood, province, timetable } = req.body;
+        const { name, address, neighborhood, province, timetable, mapsLink } = req.body;
 
         // Validar campos obligatorios
-        if (!name || !address || !neighborhood || !province || !timetable) {
+        if (!name || !address || !neighborhood || !province || !timetable || !mapsLink) {
             return res.status(400).send({ message: "Missing required fields" });
         }
 
@@ -96,7 +103,8 @@ async function updateStoreById(req, res) {
                 address: address.trim(),
                 neighborhood,
                 province,
-                timetable
+                timetable,
+                mapsLink
             },
             { new: true }
         );
