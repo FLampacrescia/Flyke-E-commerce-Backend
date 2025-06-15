@@ -5,9 +5,9 @@ const storeSchema = new Schema({
     name: String,
     address: String,
     neighborhood: String,
-    mapsLink: String,
     province: String,
-    timetable: String
+    timetable: String,
+    mapsLink: String,
 });
 
 module.exports = mongoose.model("Store", storeSchema);
