@@ -159,6 +159,29 @@ const updateUserById = async (req, res) => {
   }
 };
 
+// Agregar una dirección
+async function addAddress(req, res) {
+  try {
+    const { userId } = req.params;
+    const newAddress = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    if (newAddress.isDefault) {
+      user.addresses.forEach(addr => addr.isDefault = false);
+    }
+
+    user.addresses.push(newAddress);
+    await user.save();
+
+    res.status(201).json({ message: "Dirección agregada correctamente", addresses: user.addresses });
+  } catch (error) {
+    console.error("Error al agregar dirección:", error);
+    res.status(500).json({ message: "Error al agregar dirección" });
+  }
+}
+
 // Establecer una dirección como principal o "default"
 async function setDefaultAddress(req, res) {
   try {
@@ -251,6 +274,7 @@ module.exports = {
   createUser,
   deleteUserById,
   updateUserById,
+  addAddress,
   setDefaultAddress,
   loginUser
 }
