@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const storeController = require('../controllers/store.controller');
+const { isAuth, isAdmin } = require("../middlewares/isAuth");
 
 router.get('/stores', storeController.getStores);
 router.post('/stores', [ isAuth, isAdmin ],storeController.addStore);
