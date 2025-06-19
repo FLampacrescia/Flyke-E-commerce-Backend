@@ -13,7 +13,10 @@ async function getUsers(req, res) {
     const users = await User.find({
       name: searchName
     });
-    return res.status(200).send(users)
+    return res.status(200).send({
+            message: "Usuarios obtenidos correctamente.",
+            users
+        });
 
   } catch (error) {
     console.log(error);
