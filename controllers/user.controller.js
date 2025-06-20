@@ -188,9 +188,7 @@ async function addAddress(req, res) {
 // Eliminar una dirección
 async function deleteAddress(req, res) {
   try {
-    const { userId } = req.params.id;
-    const { addressId } = req.params.addressId;
-
+    const { userId, addressId } = req.params;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
@@ -198,14 +196,14 @@ async function deleteAddress(req, res) {
     const addressDeleted = await User.findOneAndUpdate(
       { _id: userId },
       { $pull: { addresses: { _id: addressId } } },
-      { safe: true, multi: false }
+      { new: true }
     );
 
-    if (!addressDeleted) {
-      return res.status(404).send({
-        message: "No se pudo eliminar la dirección."
-      })
+if (!addressDeleted) {
+      return res.status(404).json({ message: "No se pudo eliminar la dirección." });
     }
+
+    return res.status(200).json({ message: "Dirección eliminada correctamente", user: addressDeleted });
 
   } catch (error) {
     console.error("Error al eliminar la dirección:", error);
