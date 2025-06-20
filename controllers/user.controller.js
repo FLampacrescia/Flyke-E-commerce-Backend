@@ -185,6 +185,34 @@ async function addAddress(req, res) {
   }
 }
 
+// Eliminar una dirección
+async function deleteAddress(req, res) {
+  try {
+    const { userId } = req.params.id;
+    const { addressId } = req.params.addressId;
+    
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    user.addresses.map(async (addr) => {
+      if (addr.id === addressId) {
+        const addressDeleted = await User.addresses.findByIdAndDelete(addressId)
+      }
+    })
+
+    if (!addressDeleted) {
+      return res.status(404).send({
+        message: "No se pudo eliminar la dirección."
+      })
+    }
+
+  } catch (error) {
+    console.error("Error al eliminar la dirección:", error);
+    res.status(500).json({ message: "Error al eliminar la dirección." });
+  }
+}
+
 // Establecer una dirección como principal o "default"
 async function setDefaultAddress(req, res) {
   try {
@@ -278,6 +306,7 @@ module.exports = {
   deleteUserById,
   updateUserById,
   addAddress,
+  deleteAddress,
   setDefaultAddress,
   loginUser
 }
