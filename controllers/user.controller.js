@@ -190,16 +190,16 @@ async function deleteAddress(req, res) {
   try {
     const { userId } = req.params.id;
     const { addressId } = req.params.addressId;
-    
+
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
 
-    user.addresses.map(async (addr) => {
-      if (addr.id === addressId) {
-        const addressDeleted = await User.addresses.findByIdAndDelete(addressId)
-      }
-    })
+    const addressDeleted = await User.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { addresses: { _id: addressId } } },
+      { safe: true, multi: false }
+    );
 
     if (!addressDeleted) {
       return res.status(404).send({
