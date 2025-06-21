@@ -24,6 +24,9 @@ router.put("/users/:id", [isAuth, canEditUser], userController.updateUserById);
 router.post("/users/:userId/addresses", [ isAuth ], userController.addAddress);
 
 // Ruta para eliminar una dirección
+router.put("/users/:userId/addresses/:addressId", [ isAuth ], userController.updateAddressById);
+
+// Ruta para eliminar una dirección
 router.delete("/users/:userId/addresses/:addressId", [ isAuth ], userController.deleteAddress);
 
 // Ruta para establecer una dirección como principal o "default"

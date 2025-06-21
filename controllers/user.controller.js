@@ -185,6 +185,30 @@ async function addAddress(req, res) {
   }
 }
 
+// Actualizar una dirección por ID
+async function updateAddressById(req, res) {
+  try {
+    const { userId, addressId } = req.params;
+    const updatedData = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+    const address = user.addresses.id(addressId);
+    if (!address) return res.status(404).json({ message: "Dirección no encontrada" });
+
+    Object.keys(updatedData).forEach(key => {
+      address[key] = updatedData[key];
+    });
+
+    await user.save();
+    return res.status(200).json({ message: "Dirección actualizada con éxito", address });
+  } catch (error) {
+    console.error("Error al actualizar dirección:", error);
+    return res.status(500).json({ message: "Error al actualizar la dirección" });
+  }
+}
+
 // Eliminar una dirección
 async function deleteAddress(req, res) {
   try {
@@ -304,6 +328,7 @@ module.exports = {
   deleteUserById,
   updateUserById,
   addAddress,
+  updateAddressById,
   deleteAddress,
   setDefaultAddress,
   loginUser
