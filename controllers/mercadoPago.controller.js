@@ -1,4 +1,5 @@
-const { mercadopago, MercadoPagoConfig, Payment } = require('mercadopago');
+const { MercadoPagoConfig, Payment } = require('mercadopago');
+const mercadopago = require("mercadopago");
 require('dotenv').config();
 
 const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
