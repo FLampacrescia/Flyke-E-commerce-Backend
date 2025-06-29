@@ -1,7 +1,10 @@
 const { mercadopago, MercadoPagoConfig, Payment } = require('mercadopago');
+require('dotenv').config();
+
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
 
 mercadopago.configure({
-    access_token: process.env.MP_ACCESS_TOKEN,
+    access_token: MP_ACCESS_TOKEN,
 })
 
 async function CreatePreferenceId(req, res) {
@@ -37,7 +40,7 @@ async function CreatePreferenceId(req, res) {
 }
 
 async function createPayment(req, res) {
-    const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
+    const client = new MercadoPagoConfig({ accessToken: MP_ACCESS_TOKEN });
     const payment = new Payment(client);
 
     try {
