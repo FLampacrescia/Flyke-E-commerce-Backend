@@ -23,7 +23,7 @@ router.put("/users/:id", [isAuth, canEditUser], userController.updateUserById);
 // Ruta para agregar una dirección
 router.post("/users/:userId/addresses", [ isAuth ], userController.addAddress);
 
-// Ruta para eliminar una dirección
+// Ruta para editar una dirección por ID
 router.put("/users/:userId/addresses/:addressId", [ isAuth ], userController.updateAddressById);
 
 // Ruta para eliminar una dirección
