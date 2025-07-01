@@ -1,12 +1,11 @@
 const { MercadoPagoConfig, Payment } = require('mercadopago');
 const mercadopago = require("mercadopago");
-require('dotenv').config();
 
 const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN
 
-mercadopago.configure({
-    access_token: MP_ACCESS_TOKEN,
-})
+// mercadopago.configure({
+//     access_token: MP_ACCESS_TOKEN,
+// })
 
 async function CreatePreferenceId(req, res) {
     const { cartItems, user } = req.body;
