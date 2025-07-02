@@ -2,6 +2,8 @@ const crypto = require("crypto");
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
 const User = require("../models/user.model");
+const { mpClient } = require('../config/mercadoPago.config')
+const { Order: MPOrder } = require("mercadopago");
 
 function generateOrderCode() {
     const random = crypto.randomBytes(3).toString('hex').toUpperCase();
@@ -34,7 +36,10 @@ async function createOrder(req, res) {
             };
         }
 
-        // Creamos la orden
+        // Validar precios con base de datos
+        await checkOrderPrices(data.products);
+
+        // Crear la orden en MongoDB
         const order = new Order({
             orderCode: generateOrderCode(),
             user: userId,
@@ -42,16 +47,42 @@ async function createOrder(req, res) {
             total: data.total,
             shipping: data.shipping,
             store: data.store || null,
-            shippingAddress: shippingAddress
+            shippingAddress: shippingAddress,
         });
 
-        await checkOrderPrices(order.products);
+        const savedOrder = await order.save();
 
-        const newOrder = await order.save();
+        const mpOrder = new MPOrder(mpClient);
+
+        const items = data.products.map((p) => ({
+            title: "Producto",
+            quantity: p.quantity,
+            unit_price: p.price,
+            currency_id: "ARS",
+        }));
+
+        const preference = {
+            items,
+            payer: {
+                email: user.email,
+            },
+            back_urls: {
+                success: `${process.env.CLIENT_URL}/checkout/success`,
+                failure: `${process.env.CLIENT_URL}/checkout/failure`,
+                pending: `${process.env.CLIENT_URL}/checkout/pending`,
+            },
+            auto_return: "approved",
+            external_reference: order.orderCode,
+            notification_url: `${process.env.SERVER_URL}/api/mercadopago/webhook`, // opcional
+        };
+
+        const response = await mercadopago.preferences.create(preference);
+        const preferenceId = response.body.id;
 
         return res.status(201).send({
-            message: "Order created successfully",
-            order: newOrder,
+            message: "Orden creada exitosamente",
+            order: savedOrder,
+            preferenceId,
         });
 
     } catch (error) {
