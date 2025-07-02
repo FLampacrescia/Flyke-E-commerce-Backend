@@ -5,4 +5,4 @@ const orderRouter = require ('./order.routes');
 const storeRouter = require ('./store.routes');
 
 
-module.exports = [ productRouter, userRouter, categoryRouter, orderRouter, storeRouter, mercadoPagoRouter ]
+module.exports = [ productRouter, userRouter, categoryRouter, orderRouter, storeRouter ]
