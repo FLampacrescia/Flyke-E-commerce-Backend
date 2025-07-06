@@ -13,6 +13,10 @@ function isAuth(req, res, next) {
             return res.status(401).send("Token Inválido.");
         }
 
+        if (!decoded._id && decoded.id) {
+            decoded._id = decoded.id;
+        }
+
         req.user = decoded;
         next();
     });

@@ -2,8 +2,12 @@ const crypto = require("crypto");
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
 const User = require("../models/user.model");
-const { mpClient } = require('../config/mercadoPago.config')
-const { Order: MPOrder } = require("mercadopago");
+const { MercadoPagoConfig, Preference } = require('mercadopago');
+
+const mercadopagoClient = new MercadoPagoConfig({
+    accessToken: process.env.MP_ACCESS_TOKEN,
+});
+
 
 function generateOrderCode() {
     const random = crypto.randomBytes(3).toString('hex').toUpperCase();
@@ -15,6 +19,10 @@ async function createOrder(req, res) {
         const data = req.body;
         const userId = req.user._id;
         const user = await User.findById(userId);
+
+        if (!data || !data.products || !data.total || !data.shipping) {
+            return res.status(400).send({ message: "Datos incompletos en la solicitud" });
+        }
 
         let shippingAddress = null;
 
@@ -36,10 +44,8 @@ async function createOrder(req, res) {
             };
         }
 
-        // Validar precios con base de datos
-        await checkOrderPrices(data.products);
+        const validatedProducts = await checkOrderPrices(data.products);
 
-        // Crear la orden en MongoDB
         const order = new Order({
             orderCode: generateOrderCode(),
             user: userId,
@@ -49,40 +55,44 @@ async function createOrder(req, res) {
             store: data.store || null,
             shippingAddress: shippingAddress,
         });
-
+        
         const savedOrder = await order.save();
 
-        const mpOrder = new MPOrder(mpClient);
-
-        const items = data.products.map((p) => ({
-            title: "Producto",
+        const items = validatedProducts.map((p) => ({
+            title: p.title,
             quantity: p.quantity,
             unit_price: p.price,
             currency_id: "ARS",
         }));
 
-        const preference = {
-            items,
-            payer: {
-                email: user.email,
-            },
-            back_urls: {
-                success: `${process.env.CLIENT_URL}/checkout/success`,
-                failure: `${process.env.CLIENT_URL}/checkout/failure`,
-                pending: `${process.env.CLIENT_URL}/checkout/pending`,
-            },
-            auto_return: "approved",
-            external_reference: order.orderCode,
-            notification_url: `${process.env.SERVER_URL}/api/mercadopago/webhook`, // opcional
-        };
+        const preference = new Preference(mercadopagoClient);
 
-        const response = await mercadopago.preferences.create(preference);
-        const preferenceId = response.body.id;
+        const response = await preference.create({
+            body: {
+                items,
+                back_urls: {
+                    success: `${process.env.FLYKE_URL}/checkout/order-success`,
+                    failure: `${process.env.FLYKE_URL}/checkout/order-failure`,
+                    pending: `${process.env.FLYKE_URL}/checkout/order-pending`,
+                },
+                auto_return: 'approved',
+                payment_methods: {
+                    excluded_payment_types: [
+                        { id: "ticket" },
+                        { id: "bank_transfer" },
+                    ],
+                    installments: 1,
+                },
+                // notification_url: `${process.env.SERVER_URL}/api/mercadopago/webhook`,
+            },
+        });
 
         return res.status(201).send({
-            message: "Orden creada exitosamente",
+            response,
+            id: response.id,
             order: savedOrder,
-            preferenceId,
+            init_point: response.init_point,
+            status: "Orden creada exitosamente",
         });
 
     } catch (error) {
@@ -94,16 +104,25 @@ async function createOrder(req, res) {
 }
 
 async function checkOrderPrices(products) {
-    for(const product of products) {
+    const validatedProducts = [];
 
+    for (const product of products) {
         const productDB = await Product.findById(product.product);
         if (!productDB) {
             throw new Error(`Product with ID ${product.product} not found`);
         }
+
         if (productDB.price !== product.price) {
             throw new Error(`Price mismatch for product with ID ${product.product}`);
         }
+
+        validatedProducts.push({
+            ...product,
+            title: productDB.title,
+        });
     }
+
+    return validatedProducts;
 }
 
 async function getOrders(req, res) {
