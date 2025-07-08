@@ -150,6 +150,20 @@ async function getOrders(req, res) {
     }
 }
 
+async function getOrderByOrderCode(req, res) {
+    try {
+        const order = await Order.findOne({ orderCode: req.params.orderCode })
+                                    .populate('products.product');
+        if (!order) return res.status(404).json({ message: "Orden no encontrada" });
+        res.json(order);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            message: "Error searching for order",
+        });
+    }
+}
+
 async function getOrderById(req, res) {
     try {
         const { id } = req.params;
@@ -186,5 +200,6 @@ async function getOrderById(req, res) {
 module.exports = {
     createOrder,
     getOrders,
+    getOrderByOrderCode,
     getOrderById,
 };
