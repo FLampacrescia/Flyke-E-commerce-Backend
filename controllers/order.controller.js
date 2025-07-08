@@ -40,7 +40,7 @@ async function createOrder(req, res) {
                 street: selectedAddress.street,
                 city: selectedAddress.city,
                 province: selectedAddress.province,
-                postalCode: selectedAddress.postalCode,
+                zipCode: selectedAddress.zipCode,
             };
         }
 
@@ -83,6 +83,7 @@ async function createOrder(req, res) {
                     ],
                     installments: 1,
                 },
+                external_reference: order.orderCode,
                 // notification_url: `${process.env.SERVER_URL}/api/mercadopago/webhook`,
             },
         });
