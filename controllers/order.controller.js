@@ -38,7 +38,7 @@ async function createOrder(req, res) {
             shippingAddress = {
                 name: user.name + " " + user.lastName,
                 street: selectedAddress.street,
-                city: selectedAddress.city,
+                city: selectedAddress.neighborhood,
                 province: selectedAddress.province,
                 zipCode: selectedAddress.zipCode,
             };
@@ -153,6 +153,7 @@ async function getOrders(req, res) {
 async function getOrderByOrderCode(req, res) {
     try {
         const order = await Order.findOne({ orderCode: req.params.orderCode })
+                                    .populate("user", "name lastName email ")
                                     .populate('products.product');
         if (!order) return res.status(404).json({ message: "Orden no encontrada" });
         res.json(order);
