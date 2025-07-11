@@ -38,7 +38,7 @@ async function createOrder(req, res) {
             shippingAddress = {
                 name: user.name + " " + user.lastName,
                 street: selectedAddress.street,
-                city: selectedAddress.neighborhood,
+                neighborhood: selectedAddress.neighborhood,
                 province: selectedAddress.province,
                 zipCode: selectedAddress.zipCode,
             };
