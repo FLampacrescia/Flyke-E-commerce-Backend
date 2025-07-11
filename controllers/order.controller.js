@@ -156,7 +156,10 @@ async function getOrderByOrderCode(req, res) {
                                     .populate("user", "name lastName email ")
                                     .populate('products.product');
         if (!order) return res.status(404).json({ message: "Orden no encontrada" });
-        res.json(order);
+
+        const orderData = order.toObject();
+
+        res.status(200).json(orderData);
     } catch (error) {
         console.error(error);
         return res.status(500).send({
