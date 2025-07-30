@@ -1,7 +1,9 @@
 const User = require("../models/user.model");
+
 const bcrypt = require("bcryptjs");
 const salt = 10;
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
 const SECRET = process.env.SECRET_JWT;
 
 // Obtener usuarios
@@ -21,14 +23,12 @@ async function getUsers(req, res) {
   } catch (error) {
     console.log(error);
     res.status(500).send("Error al obtener los usuarios.")
-    
   }
 };
 
 // Obtener usuario por ID
 async function getUserById(req, res) {
   try {
-    console.log("Petición recibida al controller");
     const id = req.params.id
     const user = await User.findById(id).select({ password: 0, __v: 0 });
 
@@ -148,8 +148,6 @@ const updateUserById = async (req, res) => {
       return res.status(404).send({ message: "El usuario no se puede actualizar." });
     }
 
-    console.log("Usuario actualizado:", userUpdated);
-
     return res.status(200).send({
       message: "Usuario actualizado correctamente.",
       user: userUpdated,
@@ -161,6 +159,50 @@ const updateUserById = async (req, res) => {
     });
   }
 };
+
+// Actualizar la foto de perfil del usuario
+async function updateProfileImage(req, res) {
+  try {
+    const id = req.params.id;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).send({
+        message: "No se subió ninguna imagen."
+      });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).send({
+        message: "No se encontró el usuario."
+      });
+    }
+
+    // Eliminar imagen anterior si existe
+    if (user.profileImage) {
+      const oldImagePath = `uploads/${user.profileImage}`;
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+    // Guardar nueva ruta relativa
+    user.profileImage = `users/${file.filename}`;
+    await user.save();
+
+    return res.status(200).send({
+      message: "Imagen de perfil actualizada correctamente.",
+      profileImage: user.profileImage
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      message: "Error al actualizar la imagen de perfil."
+    });
+  }
+}
 
 // Agregar una dirección
 async function addAddress(req, res) {
@@ -302,7 +344,7 @@ async function loginUser(req, res) {
         const token = jwt.sign(
             tokenPayload,
             SECRET,
-            { expiresIn: "1h" }
+            { expiresIn: "15m" }
         );
 
       // 4- Retornamos el token y el usuario sin la contraseña.
@@ -327,6 +369,7 @@ module.exports = {
   createUser,
   deleteUserById,
   updateUserById,
+  updateProfileImage,
   addAddress,
   updateAddressById,
   deleteAddress,

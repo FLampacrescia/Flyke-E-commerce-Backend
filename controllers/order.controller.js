@@ -168,6 +168,33 @@ async function getOrderByOrderCode(req, res) {
     }
 }
 
+async function updateAddressByOrderCode(req, res) {
+    try {
+        const { orderCode } = req.params;
+        const { updatedAddressId, userId } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+
+        const order = await Order.findById(orderCode);
+        if (!order) return res.status(404).json({ message: "Orden no encontrada" });
+
+        const updatedAddress = user.addresses.filter(addr => addr._id === updatedAddressId);
+        
+        Object.keys(updatedAddress).forEach(key => {
+            order.shippingAddress[key] = updatedAddress[key];
+        });
+
+        await order.save();
+
+        return res.status(200).send({
+            message: "Order address updated successfully",
+        });
+    } catch (error) {
+        
+    }
+}
+
 async function getOrderById(req, res) {
     try {
         const { id } = req.params;
@@ -205,5 +232,6 @@ module.exports = {
     createOrder,
     getOrders,
     getOrderByOrderCode,
+    updateAddressByOrderCode,
     getOrderById,
 };

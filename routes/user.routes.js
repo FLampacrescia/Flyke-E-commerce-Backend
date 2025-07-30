@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const userController = require("../controllers/user.controller");
 const { isAuth, isAdmin, canEditUser } = require("../middlewares/isAuth");
+const upload = require("../middlewares/uploadFile");
 
 // Ruta para obtener todos los usuarios
 router.get("/users", userController.getUsers);
@@ -15,10 +16,13 @@ router.post("/register", userController.createUser);
 router.post("/users", [ isAdmin ], userController.createUser);
 
 // Ruta para eliminar un usuario por ID (admin o dueño)
-router.delete("/users/:id", [isAuth, canEditUser], userController.deleteUserById);
+router.delete("/users/:id", [ isAuth, canEditUser ], userController.deleteUserById);
 
 // Ruta para actualizar/editar un usuario por ID (admin o dueño)
-router.put("/users/:id", [isAuth, canEditUser], userController.updateUserById);
+router.put("/users/:id", [ isAuth, canEditUser ], userController.updateUserById);
+
+// Ruta para actualizar la foto de perfil del usuario
+router.put("/users/:id/profile-image", [ isAuth, canEditUser ], [ upload ], userController.updateProfileImage);
 
 // Ruta para agregar una dirección
 router.post("/users/:userId/addresses", [ isAuth ], userController.addAddress);

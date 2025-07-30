@@ -35,6 +35,10 @@ async function createProduct(req, res) {
             product.image = req.file.filename;
         }
 
+        if (!req.file) {
+            return res.status(400).json({ message: "No se subió ninguna imagen." });
+        }
+
         const newProduct = await product.save();
 
         return res.status(201).send({

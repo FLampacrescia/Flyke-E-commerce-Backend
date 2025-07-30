@@ -47,6 +47,10 @@ const userSchema = new Schema({
         maxlength: 50,
         trim: true
     },
+    profileImage: {
+        type: String,
+        trim: true,
+    },
     dni: {
         type: String,
         required: true,

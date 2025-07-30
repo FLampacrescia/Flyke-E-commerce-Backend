@@ -16,6 +16,10 @@ const storage = multer.diskStorage({
             dir = path.join(__dirname, '../uploads/users');
         }
 
+        if (!dir) {
+            return cb(new Error('No se encontró el directorio de destino'), null);
+        }
+
         if(!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -24,7 +28,7 @@ const storage = multer.diskStorage({
     },
 
     filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname)
+        const ext = path.extname(file.originalname).toLowerCase();
         const uniqueName = v4() + ext;
 
         cb(null, uniqueName);

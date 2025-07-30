@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const productController = require('../controllers/product.controller');
 const upload = require('../middlewares/uploadFile');
-const { isAuth, isAdmin} = require("../middlewares/isAuth");
+const { isAuth, isAdmin } = require("../middlewares/isAuth");
 
 // Ruta para obtener todos los productos
 router.get('/products', productController.getProducts);
