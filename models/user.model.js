@@ -104,7 +104,11 @@ const userSchema = new Schema({
         enum: ["admin", "user", "editor"],
         default: "user"
     },
-    addresses: [addressSchema], // varias direcciones
+    addresses: [addressSchema],
+    wishlist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product'
+    }],
     createdAt: {
         type: Date,
         default: Date.now,

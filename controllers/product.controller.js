@@ -1,4 +1,5 @@
 const Product = require('../models/product.model');
+const User = require('../models/user.model');
 
 async function getProducts(req, res) {
     try {
@@ -89,10 +90,74 @@ async function updateProductById(req, res) {
     }
 }
 
+// Obtener wishlist del usuario
+async function getUserWishlist(req, res) {
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findById(userId).populate('wishlist');
+
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+
+        return res.status(200).json({
+            message: 'Wishlist obtenida correctamente.',
+            wishlist: user.wishlist
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al obtener la wishlist.' });
+    }
+}
+
+// Agregar producto a la wishlist
+async function addToWishlist(req, res) {
+    try {
+        const userId = req.user.id;
+        const { productId } = req.params;
+
+        const user = await User.findById(userId);
+
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+
+        if (!user.wishlist.includes(productId)) {
+            user.wishlist.push(productId);
+            await user.save();
+        }
+
+        return res.status(200).json({ message: 'Producto agregado a la wishlist.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al agregar a wishlist.' });
+    }
+}
+
+// Eliminar producto de la wishlist
+async function removeFromWishlist(req, res) {
+    try {
+        const userId = req.user.id;
+        const { productId } = req.params;
+
+        const user = await User.findById(userId);
+
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+
+        user.wishlist = user.wishlist.filter(id => id.toString() !== productId);
+        await user.save();
+
+        return res.status(200).json({ message: 'Producto eliminado de la wishlist.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error al eliminar de wishlist.' });
+    }
+}
+
 module.exports = {
     getProducts,
     getProductById,
     createProduct,
     deleteProductById,
-    updateProductById
+    updateProductById,
+    getUserWishlist,
+    addToWishlist,
+    removeFromWishlist
 }

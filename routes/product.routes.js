@@ -21,4 +21,13 @@ router.put('/products/:id', [ isAuth, isAdmin ], [upload], productController.upd
 // Ruta para actualizar la descripción de un producto por ID
 router.patch('/products/:id', [ isAuth, isAdmin ], productController.updateProductById);
 
+// Ruta para obtener wishlist del usuario
+router.get('/wishlist', isAuth, productController.getUserWishlist);
+
+// Ruta para agregar producto a la wishlist
+router.post('/wishlist/:productId', isAuth, productController.addToWishlist);
+
+// Ruta para eliminar producto de la wishlist
+router.delete('/wishlist/:productId', isAuth, productController.removeFromWishlist);
+
 module.exports = router
