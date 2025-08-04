@@ -36,6 +36,12 @@ router.delete("/users/:userId/addresses/:addressId", [ isAuth ], userController.
 // Ruta para establecer una dirección como principal o "default"
 router.put("/users/:userId/addresses/:addressId/set-default", [ isAuth ], userController.setDefaultAddress);
 
+// Ruta para obtener todas las órdenes del usuario
+router.get("/users/:userId/orders", [ isAuth ], userController.getUserOrders);
+
+// Ruta para obtener el detalle de una orden específica por ID
+router.get("/users/:userId/orders/:orderId", [ isAuth ], userController.getUserOrderById);
+
 // Ruta para realizar login de un usuario
 router.post("/login", userController.loginUser)
 

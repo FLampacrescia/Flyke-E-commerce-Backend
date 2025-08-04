@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const Order = require("../models/order.model");
 
 const bcrypt = require("bcryptjs");
 const salt = 10;
@@ -298,6 +299,47 @@ async function setDefaultAddress(req, res) {
   }
 }
 
+// Obtener todas las órdenes del usuario
+async function getUserOrders(req, res) {
+  try {
+    const userId = req.params.userId;
+
+    const orders = await Order.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .populate("products.product", "title price imageUrl")
+
+    return res.status(200).send(orders);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      message: "Error al obtener las órdenes del usuario."
+    });
+  }
+}
+
+// Obtener una órden especifica por ID
+async function getUserOrderById(req, res) {
+  try {
+    const { userId, orderId } = req.params;
+
+    const order = await Order.findOne({ _id: orderId, user: userId })
+      .populate("items.product");
+
+    if (!order) {
+      return res.status(404).send({ message: "Orden no encontrada." });
+    }
+
+    return res.status(200).send(order);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      message: "Error al obtener el detalle de la orden."
+    });
+  }
+}
+
 // Login del usuario
 async function loginUser(req, res) {
   try {
@@ -374,5 +416,7 @@ module.exports = {
   updateAddressById,
   deleteAddress,
   setDefaultAddress,
+  getUserOrders,
+  getUserOrderById,
   loginUser
 }
