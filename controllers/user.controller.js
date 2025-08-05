@@ -306,7 +306,7 @@ async function getUserOrders(req, res) {
 
     const orders = await Order.find({ user: userId })
       .sort({ createdAt: -1 })
-      .populate("products.product", "title price imageUrl")
+      .populate("products.product", "title price image")
 
     return res.status(200).send(orders);
 
