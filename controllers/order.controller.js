@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
 const User = require("../models/user.model");
+const Store = require("../models/store.model");
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const mercadopagoClient = new MercadoPagoConfig({
@@ -25,6 +26,7 @@ async function createOrder(req, res) {
         }
 
         let shippingAddress = null;
+        let store = null;
 
         if (data.shipping === "delivery") {
             const selectedAddress = user.addresses.find(
@@ -44,6 +46,19 @@ async function createOrder(req, res) {
             };
         }
 
+        if (data.shipping === "pickup") {
+            if (!data.store) {
+                return res.status(400).send({ message: "Tienda no especificada" });
+            }
+
+            const selectedStore = await Store.findById(data.store);
+            if (!selectedStore) {
+                return res.status(404).send({ message: "Tienda no encontrada" });
+            }
+
+            store = selectedStore._id;
+        }
+
         const validatedProducts = await checkOrderPrices(data.products);
 
         const order = new Order({
@@ -52,7 +67,7 @@ async function createOrder(req, res) {
             products: data.products,
             total: data.total,
             shipping: data.shipping,
-            store: data.store || null,
+            store: store,
             shippingAddress: shippingAddress,
         });
         

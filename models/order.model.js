@@ -39,7 +39,8 @@ const orderSchema = new Schema({
         required: true
     },
     store: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Store",
         default: null
     },
     shippingAddress: {
