@@ -169,7 +169,8 @@ async function getOrderByOrderCode(req, res) {
     try {
         const order = await Order.findOne({ orderCode: req.params.orderCode })
                                     .populate("user", "name lastName email ")
-                                    .populate('products.product');
+                                    .populate('products.product')
+                                    .populate("store", "name address neighborhood province");
         if (!order) return res.status(404).json({ message: "Orden no encontrada" });
 
         const orderData = order.toObject();
