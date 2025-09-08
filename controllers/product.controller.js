@@ -32,7 +32,7 @@ async function createProduct(req, res) {
     try {
         const product = new Product(req.body);
 
-        if(req.file) {
+        if (req.file) {
             product.image = req.file.filename;
         }
 
@@ -124,7 +124,12 @@ async function addToWishlist(req, res) {
             await user.save();
         }
 
-        return res.status(200).json({ message: 'Producto agregado a la wishlist.' });
+        const updatedUser = await User.findById(userId).populate("wishlist");
+
+        return res.status(200).json({
+            message: 'Producto agregado a la wishlist.',
+            wishlist: updatedUser.wishlist
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Error al agregar a wishlist.' });
@@ -144,7 +149,12 @@ async function removeFromWishlist(req, res) {
         user.wishlist = user.wishlist.filter(id => id.toString() !== productId);
         await user.save();
 
-        return res.status(200).json({ message: 'Producto eliminado de la wishlist.' });
+        const updatedUser = await User.findById(userId).populate("wishlist");
+
+        return res.status(200).json({
+            message: 'Producto eliminado de la wishlist.',
+            wishlist: updatedUser.wishlist
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: 'Error al eliminar de wishlist.' });
